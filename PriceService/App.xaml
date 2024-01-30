@@ -4,6 +4,5 @@
              xmlns:local="clr-namespace:PriceService"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
-         
     </Application.Resources>
 </Application>
