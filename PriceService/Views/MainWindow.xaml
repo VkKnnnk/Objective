@@ -3,10 +3,144 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:PriceService.View_Models"
         xmlns:local="clr-namespace:PriceService"
-        mc:Ignorable="d"
+        mc:Ignorable="d" MinWidth="900" MinHeight="500"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="2"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Width" Value="auto" />
+        </Style>
+        <Style TargetType="{x:Type DataGridCell}">
+            <Setter Property="Background" Value="Red" />
+        </Style>
+    </Window.Resources>
+    <Window.DataContext>
+        <vm:MainWindowVM/>
+    </Window.DataContext>
     <Grid>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.1*"/>
+            <RowDefinition/>
+            <RowDefinition Height="0.3*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="0.7*"/>
+            </Grid.ColumnDefinitions>
+            <ListView Grid.Row="1" Grid.Column="0" Margin="5" ItemsSource="{Binding Apartments}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Название">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" FontSize="14" TextWrapping="Wrap"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Цена">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Price, StringFormat={}{0} руб.}" FontSize="14"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Ипотека">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding PriceMortgageMonthly, TargetNullValue='none', StringFormat={}{0} руб./мес.}" FontSize="14"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <!--#region Log Container-->
+            <Grid Grid.Column="2" Margin="5" Background="Black">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.09*"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Foreground="White" HorizontalContentAlignment="Left" BorderThickness="0 0 0 1" BorderBrush="White">
+                    <Viewbox>
+                        <TextBlock Text="Log" FontWeight="Bold"/>
+                    </Viewbox>
+                </Label>
+                <ListBox Grid.Row="1" ItemsSource="{Binding LogList}" Background="Black" ScrollViewer.CanContentScroll="False">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <ContentPresenter/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock TextWrapping="WrapWithOverflow" Foreground="White" Margin="3" VerticalAlignment="Center">
+                                <Viewbox>
+                                    <TextBlock Text="{Binding}"/>
+                                </Viewbox>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+            <!--#endregion-->
+        </Grid>
+        <!--#region Top container-->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <!--<TextBox Grid.Column="0" Text="Введите URL" IsEnabled="False"/>-->
+            <TextBox Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding InputUrl}" Background="Transparent"/>
+            <Button Grid.Column="2" Command="{Binding GetApartmentCommand}">
+                <Viewbox StretchDirection="Both" Stretch="Uniform">
+                    <TextBlock Text="Запарсить"/>
+                </Viewbox>
+            </Button>
+            <Label Grid.Column="4" Content="" Margin="5"/>
+        </Grid>
+        <!--#endregion-->
+        <!--#region Bottom container-->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Button>
+                    <Viewbox>
+                        <TextBlock Text="Кнопочка"/>
+                    </Viewbox>
+                </Button>
+            </Grid>
+        </Grid>
+        <!--#endregion-->
     </Grid>
 </Window>
