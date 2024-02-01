@@ -12,5 +12,6 @@ namespace PriceService.Models
         public double Price { get; set; }
         public double? PriceMortgageMonthly { get; set; }
         public string Url { get; set; }
+        public bool? IsMonitorng { get; set; }
     }
 }

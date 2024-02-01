@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace PriceService
+namespace PriceService.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

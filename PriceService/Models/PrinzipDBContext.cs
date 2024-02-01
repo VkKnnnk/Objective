@@ -34,7 +34,7 @@ namespace PriceService.Models
 
             modelBuilder.Entity<Apartment>(entity =>
             {
-                entity.HasNoKey();
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Name)
                     .IsRequired()
