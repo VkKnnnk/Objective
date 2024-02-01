@@ -1,30 +1,23 @@
-﻿<Window x:Class="PriceService.MainWindow"
+﻿<Window x:Class="PriceService.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:vm="clr-namespace:PriceService.View_Models"
-        xmlns:local="clr-namespace:PriceService"
+        xmlns:converters="clr-namespace:PriceService.Converters"
         mc:Ignorable="d" MinWidth="900" MinHeight="500"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Основное окно" Height="450" Width="800">
     <Window.Resources>
-        <Style TargetType="Button">
-            <Setter Property="Margin" Value="5" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="Padding" Value="2"/>
-        </Style>
-        <Style TargetType="TextBox">
-            <Setter Property="Margin" Value="5" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-        </Style>
-        <Style TargetType="GridViewColumnHeader">
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="Width" Value="auto" />
-        </Style>
-        <Style TargetType="{x:Type DataGridCell}">
-            <Setter Property="Background" Value="Red" />
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/MainWindowStyles.xaml"/>
+                <ResourceDictionary>
+                    <converters:ShowExistEmailConverter x:Key="ShowExistEmailConverter"/>
+                    <converters:ChangeVisibilityPlaceholderConverter x:Key="ChangeVisibilityPlaceholderConverter"/>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
     <Window.DataContext>
         <vm:MainWindowVM/>
@@ -35,22 +28,40 @@
             <RowDefinition/>
             <RowDefinition Height="0.3*"/>
         </Grid.RowDefinitions>
+        <!--#region Top container-->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" Grid.ColumnSpan="2" Text="Введите URL" IsEnabled="False"
+                     Visibility="{Binding InputUrl, Converter={StaticResource ChangeVisibilityPlaceholderConverter}}"/>
+            <TextBox Grid.Column="0" Grid.ColumnSpan="2" Background="Transparent"
+                     Text="{Binding InputUrl, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Grid.Column="2" Command="{Binding GetApartmentCommand}" Content="Запарсить"/>
+            <Button Grid.Column="3" Command="{Binding StartMonitoringCommand}" Content="Отслеживать"/>
+        </Grid>
+        <!--#endregion-->
+        <!--#region Middle container-->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="0.7*"/>
             </Grid.ColumnDefinitions>
-            <ListView Grid.Row="1" Grid.Column="0" Margin="5" ItemsSource="{Binding Apartments}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+            <!--#region Apartment listbox-->
+            <ListView Grid.Row="1" Grid.Column="0" Margin="5" ItemsSource="{Binding ApartmentsItemSource}" SelectedItem="{Binding SelectedApartment}">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Название">
+                        <GridViewColumn Header="Название" Width="300">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Name}" FontSize="14" TextWrapping="Wrap"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Цена">
+                        <GridViewColumn Header="Цена" Width="100">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Price, StringFormat={}{0} руб.}" FontSize="14"/>
@@ -66,7 +77,14 @@
                         </GridViewColumn>
                     </GridView>
                 </ListView.View>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Установить слежку" Command="{Binding SetMonitoringStatusCommand}"/>
+                        <MenuItem Header="Отключить слежку" Command="{Binding UnsetMonitoringStatusCommand}"/>
+                    </ContextMenu>
+                </ListView.ContextMenu>
             </ListView>
+            <!--#endregion-->
             <!--#region Log Container-->
             <Grid Grid.Column="2" Margin="5" Background="Black">
                 <Grid.RowDefinitions>
@@ -78,7 +96,7 @@
                         <TextBlock Text="Log" FontWeight="Bold"/>
                     </Viewbox>
                 </Label>
-                <ListBox Grid.Row="1" ItemsSource="{Binding LogList}" Background="Black" ScrollViewer.CanContentScroll="False">
+                <ListBox Grid.Row="1" ItemsSource="{Binding LogList}" Background="Black" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="False">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
                             <Setter Property="Template">
@@ -92,33 +110,12 @@
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock TextWrapping="WrapWithOverflow" Foreground="White" Margin="3" VerticalAlignment="Center">
-                                <Viewbox>
-                                    <TextBlock Text="{Binding}"/>
-                                </Viewbox>
-                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding}" FontSize="14" Foreground="White" Margin="3" VerticalAlignment="Center"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
             </Grid>
             <!--#endregion-->
-        </Grid>
-        <!--#region Top container-->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <!--<TextBox Grid.Column="0" Text="Введите URL" IsEnabled="False"/>-->
-            <TextBox Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding InputUrl}" Background="Transparent"/>
-            <Button Grid.Column="2" Command="{Binding GetApartmentCommand}">
-                <Viewbox StretchDirection="Both" Stretch="Uniform">
-                    <TextBlock Text="Запарсить"/>
-                </Viewbox>
-            </Button>
-            <Label Grid.Column="4" Content="" Margin="5"/>
         </Grid>
         <!--#endregion-->
         <!--#region Bottom container-->
@@ -132,13 +129,56 @@
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Button Command="{Binding ShowDBApartmentsCommand}" Content="Показать сохраненные квартиры" x:Name="showExistButton">
+                    <behaviors:Interaction.Triggers>
+                        <behaviors:EventTrigger EventName="Click">
+                            <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=showExistButton}"
+                                                            PropertyName="Visibility" Value="Hidden"/>
+                            <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=showCurrentButton}"
+                                                            PropertyName="Visibility" Value="Visible"/>
+                        </behaviors:EventTrigger>
+                    </behaviors:Interaction.Triggers>
+                </Button>
+                <Button Command="{Binding ShowParsedApartmentsCommand}" Content="Обратно" x:Name="showCurrentButton" Visibility="Hidden">
+                    <behaviors:Interaction.Triggers>
+                        <behaviors:EventTrigger EventName="Click">
+                            <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=showExistButton}"
+                                                            PropertyName="Visibility" Value="Visible"/>
+                            <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=showCurrentButton}"
+                                                            PropertyName="Visibility" Value="Hidden"/>
+                        </behaviors:EventTrigger>
+                    </behaviors:Interaction.Triggers>
+                </Button>
+            </Grid>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Button>
-                    <Viewbox>
-                        <TextBlock Text="Кнопочка"/>
-                    </Viewbox>
-                </Button>
+                <TextBox Grid.Row="0" Text="Введите вашу почту" IsEnabled="False"
+                         Visibility="{Binding InputEmail, Converter={StaticResource ChangeVisibilityPlaceholderConverter}}"/>
+                <TextBox Grid.Row="0" MinWidth="250" Background="Transparent"
+                         Text="{Binding InputEmail, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Grid.Row="1" Content="Сохранить" Command="{Binding SetEmailCommand}"/>
+            </Grid>
+            <Grid Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Button Grid.Column="1" Command="{Binding ClearLogCommand}" Content="Очистить"/>
+                <Border Grid.Row="2" Grid.ColumnSpan="2" BorderThickness="1" BorderBrush="Black" Margin="1" Visibility="{Binding Path=Email, Converter={StaticResource ShowExistEmailConverter}}">
+                    <StackPanel Margin="1">
+                        <TextBlock Text="Ваш E-mail:" VerticalAlignment="Top" Foreground="Green"/>
+                        <TextBlock Grid.Row="2"  Text="{Binding Email}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
             </Grid>
         </Grid>
         <!--#endregion-->
