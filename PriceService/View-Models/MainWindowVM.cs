@@ -93,7 +93,7 @@ namespace PriceService.View_Models
                 }
             }
             AppTimer = new DispatcherTimer();
-            AppTimer.Interval = new TimeSpan(0, 0, 10);
+            AppTimer.Interval = new TimeSpan(0, 5, 0);
             AppTimer.Tick += AppTimer_Tick;
         }
         #region Commands
